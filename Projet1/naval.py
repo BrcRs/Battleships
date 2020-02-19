@@ -10,6 +10,7 @@ reference ={0 : ['vide', 0],1 : ['porte-avions', 5],2 : ['croiseur', 4],3 : ['co
 
 matricetest = [[0 for y in range(10)] for x in range(10)]
 
+
 def peut_placer(grille, bateau, position, direction) :
     """ list(list(int)) * int * (int, int) * int -> bool
     Rend vrai s’il est possible de placer le bateau sur
@@ -51,8 +52,10 @@ def place(grille, bateau, position, direction) :
 
 def place_alea(grille, bateau) :
     """ list(list(int)) * int  -> void
-    Place aléatoirement le bateau dansla grille : la fonction tire uniformément une position et une direction aléatoires et tente
-    de placer le bateau ; s’il n’est pas possible de placer le bateau, un nouveau tirage est effectué et ce jusqu’à ce que le positionnement soit admissible
+    Place aléatoirement le bateau dansla grille : la fonction tire uniformément
+    une position et une direction aléatoires et tente de placer le bateau ; s’il
+    n’est pas possible de placer le bateau, un nouveau tirage est effectué et ce
+    jusqu’à ce que le positionnement soit admissible.
     """
     x = randint(0, 9)
     y = randint(0, 9)
@@ -90,6 +93,53 @@ def genere_grille():
         place_alea(matrice, i)
     return matrice
 
+def genere_grille_vide() :
+    """ void -> list(list(int))
+    Renvoie une grille vide
+    """
+    return [[0 for y in range(10)] for x in range(10)]
+
+def pos_un_bateau(grille, num) :
+    """ list(list(int)) * int -> int
+    Rend le nombre de possibilité de placer un bateau dans une grille vide
+    """
+    cpt = 0
+    for i in range(10):
+        for j in range(10):
+            if (peut_placer(grille, num, (i,j), 1)):
+                cpt=cpt+1
+            if (peut_placer(grille, num, (i,j), 2)):
+                cpt=cpt+1
+    return cpt
+
+def pos_des_bateauxrec(grille, liste, cpt) :
+    """ list(list(int)) * list(int) * int -> int
+    Rend le nombre de possibilité de placer des bateaux dans une grille
+    """
+    if len(liste) == 0 :
+        return 1
+    else :
+        for i in range(10):
+            for j in range(10):
+                if (peut_placer(grille, liste[0], (i,j), 1)):
+                    cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 1), liste[1:], cpt)
+                if (peut_placer(grille, liste[0], (i,j), 2)):
+                    cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 2), liste[1:], cpt)
+        return cpt
+
+def copyMat(grille) :
+    nouvGrille = genere_grille_vide()
+    for i in range(len(grille)) :
+        for j in range(len(grille[0])) :
+            nouvGrille[i][j] = grille[i][j]
+    return nouvGrille
+
+def pos_des_bateaux(liste):
+    """ list(int) -> int
+    Rend le nombre de possibilité de placer des bateaux dans une grille vide
+    """
+    return pos_des_bateauxrec(genere_grille_vide(), liste, 0)
+
 
 ### TESTS
 
@@ -100,6 +150,8 @@ print(peut_placer(matricetest, 1, (9, 0), 1))
 print(peut_placer(matricetest, 2, (9, 0), 1))
 print(peut_placer(matricetest, 1, (0, 9), 1))
 print(peut_placer(matricetest, 2, (0, 9), 1))
-place_alea(matricetest, 1)
-affiche(genere_grille())
-# affiche(matricetest)
+print(pos_un_bateau(genere_grille_vide(), 5))
+
+print(pos_des_bateaux([]))
+print("Test pos_des_bateaux")
+print(pos_des_bateaux([5,4]))
