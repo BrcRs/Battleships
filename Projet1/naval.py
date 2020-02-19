@@ -1,6 +1,7 @@
 import numpy as np
 from random import *
 import matplotlib.pyplot as plt
+import time
 
 """
 Par convention, la position d'un bateau sera sa case la plus à gauche s'il est
@@ -116,6 +117,8 @@ def pos_des_bateauxrec(grille, liste, cpt) :
     """ list(list(int)) * list(int) * int -> int
     Rend le nombre de possibilité de placer des bateaux dans une grille
     """
+    print("=- APPEL pos_des_bateauxrec -=\navec :\ngrille :\n"+affiche_mat(grille)+"\nliste :\n"+str(liste)+"\ncpt :\n"+str(cpt))
+    time.sleep(0.0125)
     if len(liste) == 0 :
         return 1
     else :
@@ -125,6 +128,7 @@ def pos_des_bateauxrec(grille, liste, cpt) :
                     cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 1), liste[1:], cpt)
                 if (peut_placer(grille, liste[0], (i,j), 2)):
                     cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 2), liste[1:], cpt)
+        time.sleep(2)
         return cpt
 
 def copyMat(grille) :
@@ -140,7 +144,17 @@ def pos_des_bateaux(liste):
     """
     return pos_des_bateauxrec(genere_grille_vide(), liste, 0)
 
+def affiche_mat(grille) :
+    string = ""
+    for i in range(len(grille)) :
+        for j in range(len(grille)) :
+            if (grille[i][j] == 0) :
+                string += " \t"
 
+            else :
+                string += str(grille[i][j]) + "\t"
+        string += "\n"
+    return string
 ### TESTS
 
 print(peut_placer(matricetest, 1, (0, 0), 1))
