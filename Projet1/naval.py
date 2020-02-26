@@ -117,7 +117,7 @@ def genere_grille_vide() :
 
 def pos_un_bateau(grille, num) :
     """ list(list(int)) * int -> int
-    Rend le nombre de possibilité de placer un bateau dans une grille vide
+    Rend le nombre de possibilité de placer un bateau dans une grille donnée
     """
     cpt = 0
     for i in range(10):
@@ -175,7 +175,7 @@ def affiche_mat(grille) :
 def grilleAleaEgale(grille, listNum) :
     """ list(list(int)) * list(int) -> int
     Prend en paramètre une grille, génère des grilles aléatoirement jusqu’à ce
-    que la grille généréesoit égale à la grille passée en paramètre et qui
+    que la grille générée soit égale à la grille passée en paramètre et qui
     renvoie le nombre de grilles générées.
     """
     grilleGeneree = genere_grille_list(listNum)
@@ -197,6 +197,16 @@ def grilleAleaEgale(grille, listNum) :
     return cpt
 
 def test_grilleAleaEgale(sec, listNum) :
+    """ Pour une durée donnée, itère autant que possible sur la fonction
+    grilleAleaEgale pour donner au final une moyenne des résultats obtenus.
+
+    Entrée :
+     --     sec : durée en secondes (int)
+     -- listNum : liste de bateau (list(int))
+
+    Sortie :
+     -- (int)
+    """
     print()
     print("Test grilleAleaEgale ("+str(sec)+"s, "+ str(listNum) +")")
     cpt = 0
@@ -216,6 +226,79 @@ def test_grilleAleaEgale(sec, listNum) :
     print("("+ str(round(end_time - start_time)) +"s)")
     return res
 
+def approx_nbGrille1(listNum) :
+    """ Renvoie une approximation du nombre de grilles différentes possibles
+    contenant la liste de bateaux passée en paramètre.
+
+    Une manière un peu bourrine consiste à multiplier les résultats respectifs
+    de la fonction 'pos_un_bateau(...) appliquée aux différents bateaux de
+    'listNum.
+    """
+    res = 1
+    for i in listNum :
+        res *= pos_un_bateau(genere_grille_vide(), i)
+    return res
+
+def approx_nbGrille2(listNum) :
+    """ Renvoie une approximation du nombre de grilles différentes possibles
+    contenant la liste de bateaux passée en paramètre.
+
+    Une manière consiste à calculer le nombre de grilles possibles en plaçant le
+    premier bateau, puis placer ce bateau dans une nouvelle grille, puis
+    calculer le nombre de grilles possibles en plaçant le second bateau dans
+    cette nouvelle grille et ainsi de suite.
+    """
+    res = 1
+    grilleCour = genere_grille_vide()
+    for i in listNum :
+        res *= pos_un_bateau(grilleCour, i)
+        place_alea(grilleCour, i)
+
+    return res
+
+def maxLen(liste) :
+    maxi = 0
+    for x in liste :
+        maxi = max(len(x), maxi)
+    return maxi
+# def affiche_tabl(liste, colSize=10) :
+#     """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
+#     tableau
+#     """
+#     # form = "{0:colSize}{1:colSize}{2:colSize}"
+#     listeCopy = liste.copy()
+#     # listeCopy.insert(1, ["-" * colSize for x in liste[0]])
+#     print(listeCopy)
+#     form = ""
+#     i = 0
+#     for x in listeCopy :
+#         form += "{"
+#         form += str(i)
+#         form += ":"
+#         # form += str(maxLen(x) * 2)
+#         form += str(colSize)
+#         form += "}"
+#         i += 1
+#
+#     for val in listeCopy :
+#         print(form.format(*val))
+
+def affiche_tabl(liste, colSize=10) :
+    """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
+    tableau
+    """
+
+    # form = "{0:colSize}{1:colSize}{2:colSize}"
+    listeCopy = liste.copy()
+    listeCopy.insert(1, ["-" * colSize for x in liste[0]])
+    form = ""
+    for x in listeCopy :
+        for y in x :
+            form += str(y) + " " * (colSize - len(str(y)))
+        form += "\n"
+    print(form)
+
+
 ## TESTS
 
 print(peut_placer(matricetest, 1, (0, 0), 1))
@@ -228,8 +311,21 @@ print(peut_placer(matricetest, 2, (0, 9), 1))
 print(pos_un_bateau(genere_grille_vide(), 5))
 
 print(pos_des_bateaux([]))
-print("Test pos_des_bateaux [5, 4]")
-print(pos_des_bateaux([5,4]))
+print()
+affiche_tabl([  ["", "Test pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"],
+                ["[5, 4]", pos_des_bateaux([5,4]), approx_nbGrille1([5,4]), approx_nbGrille2([5,4])],
+                ["[3, 4]", pos_des_bateaux([3,4]), approx_nbGrille1([3,4]), approx_nbGrille2([3,4])],
+                ["[2, 4]", pos_des_bateaux([2,4]), approx_nbGrille1([2,4]), approx_nbGrille2([2,4])],
+                ["[5, 3]", pos_des_bateaux([5,3]), approx_nbGrille1([5,3]), approx_nbGrille2([5,3])]
+                ], 21)
+
+print("Test pos_des_bateaux [5, 2]")
+print(pos_des_bateaux([5,2]))
+print("Test pos_des_bateaux [5, 1]")
+print(pos_des_bateaux([5,1]))
+print("Test pos_des_bateaux [1, 4]")
+print(pos_des_bateaux([1,4]))
+
 print("Test pos_des_bateaux [5]")
 print(pos_des_bateaux([5]))
 print("Test pos_des_bateaux [0, 0]")
@@ -240,7 +336,24 @@ print(pos_des_bateaux([4]))
 
 # print(pos_des_bateaux([5, 4, 3])) # Trop long
 
-test_grilleAleaEgale(15, [5])
-test_grilleAleaEgale(15, [5, 4])
-test_grilleAleaEgale(15, [0, 0])
-test_grilleAleaEgale(15, [4])
+# test_grilleAleaEgale(15, [5])
+# test_grilleAleaEgale(15, [5, 4])
+# test_grilleAleaEgale(15, [0, 0])
+# test_grilleAleaEgale(15, [4])
+
+
+
+
+
+
+
+
+
+
+print("approx_nbGrille1([5, 4, 3])")
+print(approx_nbGrille1([5, 4, 3]))
+print("approx_nbGrille2([5, 4, 3])")
+print(approx_nbGrille2([5, 4, 3]))
+
+
+affiche_tabl([["nom","prenom","age"],["kate","lyne","22"],["sara","parker","78"]])
