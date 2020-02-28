@@ -261,42 +261,45 @@ def maxLen(liste) :
     for x in liste :
         maxi = max(len(x), maxi)
     return maxi
-# def affiche_tabl(liste, colSize=10) :
-#     """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
-#     tableau
-#     """
-#     # form = "{0:colSize}{1:colSize}{2:colSize}"
-#     listeCopy = liste.copy()
-#     # listeCopy.insert(1, ["-" * colSize for x in liste[0]])
-#     print(listeCopy)
-#     form = ""
-#     i = 0
-#     for x in listeCopy :
-#         form += "{"
-#         form += str(i)
-#         form += ":"
-#         # form += str(maxLen(x) * 2)
-#         form += str(colSize)
-#         form += "}"
-#         i += 1
-#
-#     for val in listeCopy :
-#         print(form.format(*val))
 
 def affiche_tabl(liste, colSize=10) :
     """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
     tableau
     """
 
-    # form = "{0:colSize}{1:colSize}{2:colSize}"
     listeCopy = liste.copy()
-    listeCopy.insert(1, ["-" * colSize for x in liste[0]])
+
+    sizes = [0] * len(liste)
+    for i in range(len(listeCopy)) :
+        for j in range(len(listeCopy[i])) :
+            sizes[j] = max(sizes[j], len(str(listeCopy[i][j])))
+
+
+    listeCopy.insert(1, ["-" * (sizes[i]) for i in range(len(liste[0]))])
     form = ""
-    for x in listeCopy :
-        for y in x :
-            form += str(y) + " " * (colSize - len(str(y)))
+
+
+    form += "┌"
+    for j in range(len(listeCopy[i])) :
+        form += "─" * (sizes[j] + 2)
+    form += "─" * (len(listeCopy[0]) - 1)
+    form += "┐\n"
+
+    for i in range(len(listeCopy)) :
+        form += "│"
+        for j in range(len(listeCopy[i])) :
+            form += " "
+            form += str(listeCopy[i][j]) + " " * ((sizes[j]) - len(str(listeCopy[i][j])))
+            form += " │"
         form += "\n"
+
+    form += "└"
+    for j in range(len(listeCopy[i])) :
+        form += "─" * (sizes[j] + 2)
+    form += "─" * (len(listeCopy[0]) - 1)
+    form += "┘"
     print(form)
+
 
 
 ## TESTS
@@ -310,29 +313,39 @@ print(peut_placer(matricetest, 1, (0, 9), 1))
 print(peut_placer(matricetest, 2, (0, 9), 1))
 print(pos_un_bateau(genere_grille_vide(), 5))
 
-print(pos_des_bateaux([]))
 print()
-affiche_tabl([  ["", "Test pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"],
-                ["[5, 4]", pos_des_bateaux([5,4]), approx_nbGrille1([5,4]), approx_nbGrille2([5,4])],
-                ["[3, 4]", pos_des_bateaux([3,4]), approx_nbGrille1([3,4]), approx_nbGrille2([3,4])],
-                ["[2, 4]", pos_des_bateaux([2,4]), approx_nbGrille1([2,4]), approx_nbGrille2([2,4])],
-                ["[5, 3]", pos_des_bateaux([5,3]), approx_nbGrille1([5,3]), approx_nbGrille2([5,3])]
+colNames = ["Valeurs à tester", "pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"]
+li1 = [
+"[5, 4]",
+pos_des_bateaux([5,4]),
+approx_nbGrille1([5,4]),
+approx_nbGrille2([5,4])
+]
+li2 = [
+"[3, 4]",
+pos_des_bateaux([3,4]),
+approx_nbGrille1([3,4]),
+approx_nbGrille2([3,4])
+]
+li3 = [
+"[2, 4]",
+pos_des_bateaux([2,4]),
+approx_nbGrille1([2,4]),
+approx_nbGrille2([2,4])
+]
+li4 = [
+"[5, 3]",
+pos_des_bateaux([5,3]),
+approx_nbGrille1([5,3]),
+approx_nbGrille2([5,3])
+]
+
+affiche_tabl([  colNames,
+                li1,
+                li2,
+                li3,
+                li4
                 ], 21)
-
-print("Test pos_des_bateaux [5, 2]")
-print(pos_des_bateaux([5,2]))
-print("Test pos_des_bateaux [5, 1]")
-print(pos_des_bateaux([5,1]))
-print("Test pos_des_bateaux [1, 4]")
-print(pos_des_bateaux([1,4]))
-
-print("Test pos_des_bateaux [5]")
-print(pos_des_bateaux([5]))
-print("Test pos_des_bateaux [0, 0]")
-print(pos_des_bateaux([0, 0]))
-print("Test pos_des_bateaux [5, 4, 3]")
-print("Test pos_des_bateaux [4]")
-print(pos_des_bateaux([4]))
 
 # print(pos_des_bateaux([5, 4, 3])) # Trop long
 
@@ -340,20 +353,3 @@ print(pos_des_bateaux([4]))
 # test_grilleAleaEgale(15, [5, 4])
 # test_grilleAleaEgale(15, [0, 0])
 # test_grilleAleaEgale(15, [4])
-
-
-
-
-
-
-
-
-
-
-print("approx_nbGrille1([5, 4, 3])")
-print(approx_nbGrille1([5, 4, 3]))
-print("approx_nbGrille2([5, 4, 3])")
-print(approx_nbGrille2([5, 4, 3]))
-
-
-affiche_tabl([["nom","prenom","age"],["kate","lyne","22"],["sara","parker","78"]])
