@@ -1,4 +1,4 @@
-import numpy as np
+#import numpy as np
 from random import *
 import matplotlib.pyplot as plt
 import time
@@ -7,7 +7,15 @@ import time
 Par convention, la position d'un bateau sera sa case la plus à gauche s'il est
 horizontal, et sa case la plus en haut dans le cas où il est vertical.
 """
-reference ={0 : ['vide', 0],1 : ['porte-avions', 5],2 : ['croiseur', 4],3 : ['contre-torpilleurs', 3],4 : ['sous-marin', 3], 5 : ['torpilleur', 2]}
+reference = {
+    0 : ['vide', 0],
+    1 : ['porte-avions', 5],
+    2 : ['croiseur', 4],
+    3 : ['contre-torpilleurs', 3],
+    4 : ['sous-marin', 3],
+    5 : ['torpilleur', 2],
+    6 : ['touché', -1]
+}
 
 matricetest = [[0 for y in range(10)] for x in range(10)]
 
@@ -163,7 +171,7 @@ def pos_des_bateaux(liste):
 def affiche_mat(grille) :
     string = ""
     for i in range(len(grille)) :
-        for j in range(len(grille)) :
+        for j in range(len(grille[0])) :
             if (grille[i][j] == 0) :
                 string += " \t"
 
@@ -300,56 +308,83 @@ def affiche_tabl(liste, colSize=10) :
     form += "┘"
     print(form)
 
+def frame_bataille(mat) :
+    string = "\n" * 10
+
+    string += "┌" + "───" * len(mat[0]) + "┐\n"
+
+    for i in range(len(mat)) :
+        string += "│"
+        for j in range(len(mat[0])) :
+            if mat[i][j] == 0 :
+                string += "   "
+
+            elif mat[i][j] == -1 :
+                string += " X "
+            else :
+                string += " O "
+        string += "│\n"
+
+
+    string += "└" + "───" * len(mat[0]) + "┘\n"
+
+    return string
 
 
 ## TESTS
 
-print(peut_placer(matricetest, 1, (0, 0), 1))
-print(peut_placer(matricetest, 1, (9, 9), 1))
+def main() :
 
-print(peut_placer(matricetest, 1, (9, 0), 1))
-print(peut_placer(matricetest, 2, (9, 0), 1))
-print(peut_placer(matricetest, 1, (0, 9), 1))
-print(peut_placer(matricetest, 2, (0, 9), 1))
-print(pos_un_bateau(genere_grille_vide(), 5))
+    print(peut_placer(matricetest, 1, (0, 0), 1))
+    print(peut_placer(matricetest, 1, (9, 9), 1))
 
-print()
-colNames = ["Valeurs à tester", "pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"]
-li1 = [
-"[5, 4]",
-pos_des_bateaux([5,4]),
-approx_nbGrille1([5,4]),
-approx_nbGrille2([5,4])
-]
-li2 = [
-"[3, 4]",
-pos_des_bateaux([3,4]),
-approx_nbGrille1([3,4]),
-approx_nbGrille2([3,4])
-]
-li3 = [
-"[2, 4]",
-pos_des_bateaux([2,4]),
-approx_nbGrille1([2,4]),
-approx_nbGrille2([2,4])
-]
-li4 = [
-"[5, 3]",
-pos_des_bateaux([5,3]),
-approx_nbGrille1([5,3]),
-approx_nbGrille2([5,3])
-]
+    print(peut_placer(matricetest, 1, (9, 0), 1))
+    print(peut_placer(matricetest, 2, (9, 0), 1))
+    print(peut_placer(matricetest, 1, (0, 9), 1))
+    print(peut_placer(matricetest, 2, (0, 9), 1))
+    print(pos_un_bateau(genere_grille_vide(), 5))
 
-affiche_tabl([  colNames,
-                li1,
-                li2,
-                li3,
-                li4
-                ], 21)
+    print()
+    colNames = ["Valeurs à tester", "pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"]
+    li1 = [
+    "[5, 4]",
+    pos_des_bateaux([5,4]),
+    approx_nbGrille1([5,4]),
+    approx_nbGrille2([5,4])
+    ]
+    li2 = [
+    "[3, 4]",
+    pos_des_bateaux([3,4]),
+    approx_nbGrille1([3,4]),
+    approx_nbGrille2([3,4])
+    ]
+    li3 = [
+    "[2, 4]",
+    pos_des_bateaux([2,4]),
+    approx_nbGrille1([2,4]),
+    approx_nbGrille2([2,4])
+    ]
+    li4 = [
+    "[5, 3]",
+    pos_des_bateaux([5,3]),
+    approx_nbGrille1([5,3]),
+    approx_nbGrille2([5,3])
+    ]
 
-# print(pos_des_bateaux([5, 4, 3])) # Trop long
+    affiche_tabl([  colNames,
+                    li1,
+                    li2,
+                    li3,
+                    li4
+                    ], 21)
 
-# test_grilleAleaEgale(15, [5])
-# test_grilleAleaEgale(15, [5, 4])
-# test_grilleAleaEgale(15, [0, 0])
-# test_grilleAleaEgale(15, [4])
+    # print(pos_des_bateaux([5, 4, 3])) # Trop long
+
+    # test_grilleAleaEgale(15, [5])
+    # test_grilleAleaEgale(15, [5, 4])
+    # test_grilleAleaEgale(15, [0, 0])
+    # test_grilleAleaEgale(15, [4])
+
+
+if __name__ == "__main__":
+    main()
