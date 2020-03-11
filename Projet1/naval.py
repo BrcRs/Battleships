@@ -44,7 +44,7 @@ def peut_placer(grille, bateau, position, direction) :
 
 def place(grille, bateau, position, direction) :
     """ list(list(int)) * int * (int, int) * int -> bool
-    Rend la grille modi-fiée (s’il est possible de placer le bateau).
+    Rend la grille modifiée (s’il est possible de placer le bateau).
     """
     x, y = position
     h = 0
@@ -65,6 +65,8 @@ def place_alea(grille, bateau) :
     une position et une direction aléatoires et tente de placer le bateau ; s’il
     n’est pas possible de placer le bateau, un nouveau tirage est effectué et ce
     jusqu’à ce que le positionnement soit admissible.
+
+    TODO : Que se passe-t-il quand aucune place n'est disponible ?
     """
     x = randint(0, 9)
     y = randint(0, 9)
@@ -277,7 +279,7 @@ def affiche_tabl(liste, colSize=10) :
 
     listeCopy = liste.copy()
 
-    sizes = [0] * len(liste)
+    sizes = [0] * len(liste[0])
     for i in range(len(listeCopy)) :
         for j in range(len(listeCopy[i])) :
             sizes[j] = max(sizes[j], len(str(listeCopy[i][j])))
@@ -343,6 +345,36 @@ def main() :
     print(peut_placer(matricetest, 1, (0, 9), 1))
     print(peut_placer(matricetest, 2, (0, 9), 1))
     print(pos_un_bateau(genere_grille_vide(), 5))
+
+    print()
+    colNames = ["", "2", "3", "4", "5"]
+    li1 = [
+    "pos_un_bateau",
+    pos_un_bateau(genere_grille_vide(), 1),
+    pos_un_bateau(genere_grille_vide(), 2),
+    pos_un_bateau(genere_grille_vide(), 3),
+    pos_un_bateau(genere_grille_vide(), 5)
+    ]
+
+
+    affiche_tabl([  colNames,
+                    li1
+                    ], 21)
+
+    print()
+    colNames = ["Fonction\\Nombre de bateaux", "1", "2", "3"]
+    li1 = [
+    "pos_des_bateaux",
+    pos_des_bateaux([5]),
+    pos_des_bateaux([5,4]),
+    "pos_des_bateaux([5,4,3])",
+    ]
+
+
+    affiche_tabl([  colNames,
+                    li1
+                    ], 21)
+
 
     print()
     colNames = ["Valeurs à tester", "pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"]
