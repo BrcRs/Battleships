@@ -234,7 +234,7 @@ def test_grilleAleaEgale(sec, listNum) :
     print("Moyenne pour grilleAleaEgale avec "+ str(listNum) +" : " + str(res))
     print("(" + str(nb) + " itérations)")
     print("("+ str(round(end_time - start_time)) +"s)")
-    return res
+    return res, nb
 
 def approx_nbGrille1(listNum) :
     """ Renvoie une approximation du nombre de grilles différentes possibles
@@ -332,10 +332,36 @@ def frame_bataille(mat) :
 
     return string
 
+def test_tirage(nbCorrect, nbTotal) :
+    vict = True
+    list = [i for i in range(nbTotal)]
+    res = []
+    nb = 0
+    for i in range(nbTotal) :
+        nb+=1
+        x = randint(0, len(list) - 1)
+        res.append(list[x])
+        list.remove(list[x])
+        for j in range(nbCorrect) :
+            if j not in res :
+                vict = False
+                break
+        if vict :
+            break
+        else :
+            vict = True
+    return nb
+
 
 ## TESTS
 
 def main() :
+
+    cpt = 0
+    for i in range(1000000) :
+
+        cpt+=(test_tirage(2, 5))
+    print("moyenne ~~~ = ", str(cpt/1000000))
 
     print(peut_placer(matricetest, 1, (0, 0), 1))
     print(peut_placer(matricetest, 1, (9, 9), 1))
@@ -377,6 +403,24 @@ def main() :
 
 
     print()
+    colNames = ["test_grilleAleaEgale pour 15s\\Nombre de bateaux", "1", "2", "3", "4", "5"]
+    li1 = [
+    "(Nb d'itérations, nb de grilles)",
+    test_grilleAleaEgale(15, [5]),
+    test_grilleAleaEgale(15, [5, 4]),
+    test_grilleAleaEgale(15, [5, 4, 3]),
+    "test_grilleAleaEgale(60, [5, 4, 3, 2])",
+    "test_grilleAleaEgale(60, [5, 4, 3, 2, 1])"
+    ]
+
+    affiche_tabl([  colNames,
+                    li1
+                    ], 21)
+
+
+    print()
+
+
     colNames = ["Valeurs à tester", "pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"]
     li1 = [
     "[5, 4]",
