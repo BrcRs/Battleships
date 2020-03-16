@@ -272,20 +272,26 @@ def maxLen(liste) :
         maxi = max(len(x), maxi)
     return maxi
 
-def affiche_tabl(liste, colSize=10) :
+def affiche_tabl(liste, colSize=10, invert=False) :
     """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
     tableau
     """
-
     listeCopy = liste.copy()
 
-    sizes = [0] * len(liste[0])
+    if invert :
+        listeCopy2 = [[] for j in range(len(listeCopy[0]))]
+        for i in range(len(listeCopy)) :
+            for j in range(len(listeCopy[i])) :
+                listeCopy2[j].append(listeCopy[i][j])
+        listeCopy = listeCopy2
+
+    sizes = [0] * len(listeCopy[0])
     for i in range(len(listeCopy)) :
         for j in range(len(listeCopy[i])) :
             sizes[j] = max(sizes[j], len(str(listeCopy[i][j])))
 
 
-    listeCopy.insert(1, ["-" * (sizes[i]) for i in range(len(liste[0]))])
+    listeCopy.insert(1, ["-" * (sizes[i]) for i in range(len(listeCopy[0]))])
     form = ""
 
 
@@ -311,7 +317,8 @@ def affiche_tabl(liste, colSize=10) :
     print(form)
 
 def frame_bataille(mat) :
-    string = "\n" * 10
+    # string = "\n" * 10
+    string = ""
 
     string += "┌" + "───" * len(mat[0]) + "┐\n"
 
@@ -324,7 +331,7 @@ def frame_bataille(mat) :
             elif mat[i][j] == -1 :
                 string += " X "
             else :
-                string += " O "
+                string += " ■ "
         string += "│\n"
 
 
