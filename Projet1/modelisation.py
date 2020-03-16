@@ -9,13 +9,14 @@ import os
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 
-def partie(joueur, afficher=False, laps=1) :
+def partie(joueur, afficher=False, laps=1, clear=True) :
     # tirage aléatoire d'une grille
     jeu = btl.Bataille()
     cpt = 0
 
     if (afficher) :
-        cls()
+        if clear :
+            cls()
         jeu.affiche()
         time.sleep(laps)
     # Tant que le joueur n'a pas gagné :
@@ -26,7 +27,8 @@ def partie(joueur, afficher=False, laps=1) :
         joueur.joue(jeu)
 
         if (afficher) :
-            cls()
+            if clear :
+                cls()
             jeu.affiche()
             time.sleep(laps)
 
@@ -44,6 +46,10 @@ def demo_jH() :
 def demo_jL() :
     partie(jr.JoueurLigne(), afficher=True, laps=0.3)
 
+def demo_jP() :
+    partie(jr.JoueurProba(), afficher=True, laps=0.25)
+
+
 # def esperance(joueur) :
 #     cpt = 0
 #     coups = 0
@@ -55,10 +61,14 @@ def demo_jL() :
 def distrib(joueur) :
 
     coups = [0 for i in range(17, 101)]
+    str = "\n["
     for i in range(1000) :
-        # print("Itération", i, "...")
+        if i%100 == 0 :
+            cls()
+            print(str + "#" * int(i/100) + " " * int(10 - i/100) + "]")
         coups[partie(joueur, afficher=False) - 17] += 1
         joueur.__init__()
+    cls()
     return i+1, coups
 
 def histo(liste, xBounds, yBounds) :
@@ -89,7 +99,8 @@ def stats_j(joueur) :
     for i in range(17, 101) :
         esp += i * coups[i-17]
     esp = esp/cpt
-    print("Espérance du nombre de tours avant victoire pour "+joueur.nom+" : " + str(esp))
+    print("\nEspérance du nombre de tours avant victoire pour "+joueur.nom+" : " + str(esp))
+    input("\n\nAppuyez sur entrer...")
 
     upperbound = max(coups)
 
@@ -116,6 +127,9 @@ def stats_jH() :
 def stats_jL() :
     return stats_j(jr.JoueurLigne())
 
+def stats_jP() :
+    return stats_j(jr.JoueurProba())
+
 
 
 def main() :
@@ -126,9 +140,11 @@ def main() :
         "1": demo_jA,
         "2": demo_jH,
         "3": demo_jL,
+        "4": demo_jP,
         "11": stats_jA,
         "21": stats_jH,
         "31": stats_jL,
+        "41": stats_jP,
         "0": exit
     }
     cls()
@@ -143,9 +159,11 @@ def main() :
  1 - Démo JoueurAléatoire\n\
  2 - Démo JoueurHeuristique\n\
  3 - Démo Heuristique ligne\n\
+ 4 - Démo Probabiliste\n\
 11 - Stats sur Aléa\n\
 21 - Stats sur heuristique\n\
 31 - Stats sur heuristique ligne\n\
+41 - Stats sur probabiliste\n\
  0 - Quitter\n\
  >>> "
         )

@@ -21,9 +21,9 @@ class Bataille :
 
         if cible == 0 :
             self.grille[x][y] = -1
-        elif cible != -1 :
+        elif cible > -1 :
             self.vies -= 1
-            self.grille[x][y] = -1
+            self.grille[x][y] = -2
 
         return cible
 
@@ -37,5 +37,8 @@ class Bataille :
     def checkBound(self, position) :
         x, y = position
         return x < len(self.grille) and x >= 0 and y < len(self.grille[0]) and y >= 0
+    def get(self, position) :
+        x, y = position
+        return self.grille[x][y]
 
     # def reset(self) :

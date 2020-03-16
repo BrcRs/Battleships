@@ -14,7 +14,8 @@ reference = {
     3 : ['contre-torpilleurs', 3],
     4 : ['sous-marin', 3],
     5 : ['torpilleur', 2],
-    6 : ['touché', -1]
+    6 : ['tiré', -1],
+    7 : ['touché', -2]
 }
 
 matricetest = [[0 for y in range(10)] for x in range(10)]
@@ -330,6 +331,8 @@ def frame_bataille(mat) :
 
             elif mat[i][j] == -1 :
                 string += " X "
+            elif mat[i][j] == -2 :
+                string += " ! "
             else :
                 string += " ■ "
         string += "│\n"

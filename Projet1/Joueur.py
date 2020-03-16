@@ -2,6 +2,8 @@ from random import *
 
 import naval as nvl
 
+import time
+
 class JoueurAlea() :
     """Stratégie aléatoire"""
     def __init__(self) :
@@ -10,7 +12,7 @@ class JoueurAlea() :
     def joue(self, bataille) :
         x, y = randint(0, 9), randint(0, 9)
         effect = bataille.joue((x, y))
-        while (effect == -1) :
+        while (effect <= -1) :
 
             x, y = randint(0, 9), randint(0, 9)
             effect = bataille.joue((x, y))
@@ -25,7 +27,7 @@ class JoueurHeuristique() :
     def joue(self, bataille) :
 
         effect = -1
-        while effect == -1 :
+        while effect <= -1 :
             if len(self.prochains_coups) == 0 :
                 x, y = randint(0, 9), randint(0, 9)
             else :
@@ -63,7 +65,7 @@ class JoueurLigne() :
     def joue(self, bataille) :
 
         effect = -1
-        while effect == -1 :
+        while effect <= -1 :
             if len(self.prochains_coups) == 0 :
                 x, y = self.coups_defaut.pop()
             else :
@@ -107,41 +109,63 @@ class JoueurProba() :
                         (4, nvl.reference[4][1]),
                         (5, nvl.reference[5][1]),
                         ]
-
+        self.coups_reussis = []
+        self.probas = nvl.genere_grille_vide()
+        self.curr = 0
 
     def joue(self, bataille) :
+        self.probas = nvl.genere_grille_vide()
+
         effect = -1
-        while (effect == -1) :
+        b = self.restants[self.curr]
+        while (effect <= -1) :
             # Pour chaque bateau restant
-            b = self.restants[0]
-            probas = {}
             """ Calculer la probabilité pour chaque case de contenir ce
             bateau sans tenir compte de la position des autres bateaux.
             """
-            # Examiner toutes les positions possibles du bateau sur la
-            # grille
-                    # Pour chaque case on obtient le nombre de fois ou le
-                    # bateau apparaît potentiellement
-                    """On dérive ainsi la proba. jointe de la présence d'un
-                    bateau sur une case (en considérant que la position des
-                    bateaux est indépendante)"""
-                    # cpt = 0
-                    # Pour (u,v) de (i,j-1) à (i, j-len(bateau)) :
-                        # Si (u, v) != -1 ou != hors-limite :
-                            # cpt += 1
-                            # valides.append((u,v))
-                        # Sinon :
-                            # break
-                    # Pour (u,v) de (i,j+1) à (i, j+len(bateau)) :
-                        # Si (u, v) != -1 ou != hors-limite :
-                            # cpt += 1
-                            # valides.append((u,v))
-                        # Sinon :
-                            # break
-                    # Si cpt >= len(b) :
-                        # ajouter 1 dans la grille à toutes les positions
-                        # contenues dans valides
-                    # Faire de meme avec les verticaux
+            for i in range(10) :
+                for j in range(10) :
+                    if bataille.get((i,j)) == -1 :
+                        self.probas[i][j] = 0
+                    else :
+                        t = 0
+                        if bataille.get((i,j)) == -2 :
+                            t = 1
+                            self.probas[i][j] = 0
+                        """Vertical"""
+                        peut_poser = True
+                        for u in range(1, nvl.reference[b[0]][1]) :
+                            if not bataille.checkBound((i+u,j)) or bataille.get((i+u, j)) == -1 :
+                                peut_poser = False
+                                break
+                        if peut_poser :
+                            for u in range(t, nvl.reference[b[0]][1]) :
+                                self.probas[i+u][j] += 1
 
-            x, y = randint(0, 9), randint(0, 9)
+                        """Horizontal"""
+                        peut_poser = True
+                        for v in range(1, nvl.reference[b[0]][1]) :
+                            if not bataille.checkBound((i,j+v)) or bataille.get((i, j+v)) == -1 :
+                                peut_poser = False
+                                break
+                        if peut_poser :
+                            for v in range(t, nvl.reference[b[0]][1]) :
+                                self.probas[i][j+v] += 1
+
+
+
+            """Choisir une position dans probas"""
+            flatProbas = [item for sublist in self.probas for item in sublist]
+            maxiProba = max(flatProbas)
+            x = flatProbas.index(maxiProba)//10
+            y = (flatProbas.index(maxiProba)+10)%10
             effect = bataille.joue((x, y))
+        # print(nvl.reference[b[0]][1])
+        # print(nvl.affiche_mat(self.probas))
+        # time.sleep(1)
+        if effect != 0 :
+            # print(effect)
+            self.restants[effect - 1] = (self.restants[effect - 1][0], self.restants[effect - 1][1] - 1)
+            # self.coups_reussis.append((x, y))
+        while self.curr < len(self.restants) and (self.restants[self.curr][1] == 0) :
+            self.curr += 1
