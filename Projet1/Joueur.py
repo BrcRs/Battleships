@@ -57,10 +57,19 @@ class JoueurLigne() :
         self.prochains_coups = []
         self.coups_reussis = []
         self.coups_defaut =\
-        [(i, j) for i in range(0, 101, 2) for j in range(0, 101, 2) ] +\
-        [(i, j) for i in range(1, 101, 2) for j in range(1, 101, 2)] +\
-        [(i, j) for i in range(0, 101, 2) for j in range(1, 101, 2)] +\
-        [(i, j) for i in range(1, 101, 2) for j in range(0, 101, 2)]
+        [(i, j) for i in range(0, 10, 2) for j in range(0, 10, 2) ] +\
+        [(i, j) for i in range(1, 10, 2) for j in range(1, 10, 2)] +\
+        [(i, j) for i in range(0, 10, 2) for j in range(1, 10, 2)] +\
+        [(i, j) for i in range(1, 10, 2) for j in range(0, 10, 2)]
+
+        # self.coups_defaut =\
+        # [(i, j) for i in range(0, 10) for j in range(0, 10)] +\
+        # [(i, i+4) for i in range(0, 10)] +\
+        # [(i, i-4) for i in range(0, 10)] +\
+        # [(i, 4 - i) for i in range(9, -1, -1)] +\
+        # [(i, 4 + i) for i in range(9, -1, -1)] +\
+        # [(i, 9 - i) for i in range(9, -1, -1)] +\
+        # [(i, i) for i in range(0, 10)]
 
     def joue(self, bataille) :
 
@@ -103,54 +112,63 @@ class JoueurProba() :
     def __init__(self) :
         self.nom = "Joueur Probabiliste"
         self.restants = [
-                        (1, nvl.reference[1][1]),
-                        (2, nvl.reference[2][1]),
-                        (3, nvl.reference[3][1]),
-                        (4, nvl.reference[4][1]),
-                        (5, nvl.reference[5][1]),
+        (5, nvl.reference[5][1]),
+        (4, nvl.reference[4][1]),
+        (3, nvl.reference[3][1]),
+        (2, nvl.reference[2][1]),
+        (1, nvl.reference[1][1]),
                         ]
-        self.coups_reussis = []
         self.probas = nvl.genere_grille_vide()
-        self.curr = 0
 
     def joue(self, bataille) :
         self.probas = nvl.genere_grille_vide()
 
         effect = -1
-        b = self.restants[self.curr]
         while (effect <= -1) :
             # Pour chaque bateau restant
             """ Calculer la probabilité pour chaque case de contenir ce
             bateau sans tenir compte de la position des autres bateaux.
             """
-            for i in range(10) :
-                for j in range(10) :
-                    if bataille.get((i,j)) == -1 :
-                        self.probas[i][j] = 0
-                    else :
-                        t = 0
-                        if bataille.get((i,j)) == -2 :
-                            t = 1
-                            self.probas[i][j] = 0
-                        """Vertical"""
-                        peut_poser = True
-                        for u in range(1, nvl.reference[b[0]][1]) :
-                            if not bataille.checkBound((i+u,j)) or bataille.get((i+u, j)) == -1 :
-                                peut_poser = False
-                                break
-                        if peut_poser :
-                            for u in range(t, nvl.reference[b[0]][1]) :
-                                self.probas[i+u][j] += 1
+            for b in self.restants :
+                if b[1] == 0 :
+                    continue
+                for i in range(10) :
+                    for j in range(10) :
 
-                        """Horizontal"""
-                        peut_poser = True
-                        for v in range(1, nvl.reference[b[0]][1]) :
-                            if not bataille.checkBound((i,j+v)) or bataille.get((i, j+v)) == -1 :
-                                peut_poser = False
-                                break
-                        if peut_poser :
-                            for v in range(t, nvl.reference[b[0]][1]) :
-                                self.probas[i][j+v] += 1
+                        if bataille.get((i,j)) == -1 :
+                            self.probas[i][j] = 0
+                        else :
+                            t = 0
+                            bonus = 0
+                            if bataille.get((i,j)) == -2 :
+                                bonus = 1
+
+                                self.probas[i][j] = 0
+                            """Vertical"""
+                            peut_poser = True
+                            for u in range(1, nvl.reference[b[0]][1]) :
+                                if not bataille.checkBound((i+u,j)) or bataille.get((i+u, j)) == -1 :
+                                    peut_poser = False
+                                    break
+                                if bataille.get((i+u, j)) == -2 :
+                                    bonus += 1
+                            if peut_poser :
+                                for u in range(t, nvl.reference[b[0]][1]) :
+                                    if bataille.get((i+u, j)) != -2 :
+                                        self.probas[i+u][j] += 1 + bonus * 2
+
+                            """Horizontal"""
+                            peut_poser = True
+                            for v in range(1, nvl.reference[b[0]][1]) :
+                                if not bataille.checkBound((i,j+v)) or bataille.get((i, j+v)) == -1 :
+                                    peut_poser = False
+                                    break
+                                if bataille.get((i, j+v)) == -2 :
+                                    bonus += 1
+                            if peut_poser :
+                                for v in range(t, nvl.reference[b[0]][1]) :
+                                    if bataille.get((i, j+v)) != -2 :
+                                        self.probas[i][j+v] += 1 + bonus * 2
 
 
 
@@ -160,12 +178,17 @@ class JoueurProba() :
             x = flatProbas.index(maxiProba)//10
             y = (flatProbas.index(maxiProba)+10)%10
             effect = bataille.joue((x, y))
-        # print(nvl.reference[b[0]][1])
-        # print(nvl.affiche_mat(self.probas))
-        # time.sleep(1)
+        """"""
+        # print([h[0] for h in self.restants if h[1] != 0])
+        # nvl.affiche_tabl([[i for i in range(10)]] + self.probas, replace=("0", " "))
+        # time.sleep(4)
+        """"""
         if effect != 0 :
             # print(effect)
-            self.restants[effect - 1] = (self.restants[effect - 1][0], self.restants[effect - 1][1] - 1)
+            for i in range(len(self.restants)) :
+                if self.restants[i][0] == effect :
+                    self.restants[i] = (self.restants[i][0], self.restants[i][1] - 1)
+
             # self.coups_reussis.append((x, y))
-        while self.curr < len(self.restants) and (self.restants[self.curr][1] == 0) :
-            self.curr += 1
+        # while self.curr < len(self.restants) and (self.restants[self.curr][1] == 0) :
+        #     self.curr += 1

@@ -58,14 +58,30 @@ def demo_jP() :
 #         coups += partie(joueur, afficher=False)
 #     return cpt, coups
 
+def convertTime(sec) :
+    string = ""
+    if sec >= 60 :
+        string += str(sec//60) + "m "
+    string += str(sec%60) + "s"
+    return string
+
 def distrib(joueur) :
 
     coups = [0 for i in range(17, 101)]
-    str = "\n["
+    string = "\n["
     for i in range(1000) :
         if i%100 == 0 :
             cls()
-            print(str + "#" * int(i/100) + " " * int(10 - i/100) + "]")
+            print(string + "#" * int(i/100) + " " * int(10 - i/100) + "] ")
+            if i >= 1 :
+                end_time = time.clock()
+                print("Temps restant estimé : " +\
+                str(convertTime(round((end_time - start_time) * int(10 - i/100)))))
+            start_time = time.clock()
+
+        # print(".", end="")
+        end_time = 0
+
         coups[partie(joueur, afficher=False) - 17] += 1
         joueur.__init__()
     cls()
@@ -110,7 +126,7 @@ def stats_j(joueur) :
                     ["Tour"] + [i for i in range(17, 101)],
                     ["Nb de victoires"] + coups
                     ]
-                    , 21, invert=True)
+                    , invert=True)
 
     print("(" + str(cpt) + " itérations)")
     # print("("+ str(round(end_time - start_time)) +"s)")

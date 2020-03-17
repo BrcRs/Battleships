@@ -273,7 +273,7 @@ def maxLen(liste) :
         maxi = max(len(x), maxi)
     return maxi
 
-def affiche_tabl(liste, colSize=10, invert=False) :
+def affiche_tabl(liste, invert=False, replace=("0", "0")) :
     """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
     tableau
     """
@@ -306,7 +306,10 @@ def affiche_tabl(liste, colSize=10, invert=False) :
         form += "│"
         for j in range(len(listeCopy[i])) :
             form += " "
-            form += str(listeCopy[i][j]) + " " * ((sizes[j]) - len(str(listeCopy[i][j])))
+            if str(listeCopy[i][j]) == replace[0] :
+                form += replace[1] + " " * ((sizes[j]) - len(str(listeCopy[i][j])))
+            else :
+                form += str(listeCopy[i][j]) + " " * ((sizes[j]) - len(str(listeCopy[i][j])))
             form += " │"
         form += "\n"
 
@@ -395,7 +398,7 @@ def main() :
 
     affiche_tabl([  colNames,
                     li1
-                    ], 21)
+                    ])
 
     print()
     colNames = ["Fonction\\Nombre de bateaux", "1", "2", "3"]
@@ -409,7 +412,7 @@ def main() :
 
     affiche_tabl([  colNames,
                     li1
-                    ], 21)
+                    ])
 
 
     print()
@@ -425,7 +428,7 @@ def main() :
 
     affiche_tabl([  colNames,
                     li1
-                    ], 21)
+                    ])
 
 
     print()
@@ -462,7 +465,7 @@ def main() :
                     li2,
                     li3,
                     li4
-                    ], 21)
+                    ])
 
     # print(pos_des_bateaux([5, 4, 3])) # Trop long
 
