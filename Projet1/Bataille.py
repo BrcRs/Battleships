@@ -31,8 +31,10 @@ class Bataille :
     def victoire(self) :
         return self.vies == 0
 
-    def affiche(self) :
-        print(nvl.frame_bataille(self.grille))
+    def affiche(self, humain=False, cacher=False) :
+        print(nvl.frame_bataille(self.grille, humain, cacher))
+        # if cacher and humain :
+            # print()
 
     def checkBound(self, position) :
         x, y = position

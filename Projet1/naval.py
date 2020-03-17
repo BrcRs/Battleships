@@ -320,14 +320,28 @@ def affiche_tabl(liste, invert=False, replace=("0", "0")) :
     form += "┘"
     print(form)
 
-def frame_bataille(mat) :
+def afficherLegende() :
+    print("    '!' : bateau touché\n    '■' : bateau\n    'X' : coup raté\n")
+
+def frame_bataille(mat, humain=False, cacher=False) :
     # string = "\n" * 10
+    bats = set()
     string = ""
+    if humain :
+        string += "   "
+        for i in range(10) :
+            string += " " + str(i +1) + " "
+        string += "\n  "
 
     string += "┌" + "───" * len(mat[0]) + "┐\n"
 
     for i in range(len(mat)) :
-        string += "│"
+        if humain :
+            string += chr(ord('A') + i) + " │"
+
+        else :
+
+            string += "│"
         for j in range(len(mat[0])) :
             if mat[i][j] == 0 :
                 string += "   "
@@ -336,12 +350,19 @@ def frame_bataille(mat) :
                 string += " X "
             elif mat[i][j] == -2 :
                 string += " ! "
+            elif cacher :
+                bats.add(mat[i][j])
+                string += "   "
             else :
                 string += " ■ "
         string += "│\n"
 
-
-    string += "└" + "───" * len(mat[0]) + "┘\n"
+    if humain :
+        string += "  └" + "───" * len(mat[0]) + "┘\n"
+        if cacher :
+            string += "Nombre de bateaux restants : " + str(len(bats))
+    else :
+        string += "└" + "───" * len(mat[0]) + "┘\n"
 
     return string
 

@@ -4,10 +4,12 @@ import naval as nvl
 
 import time
 
+import string
+
 class JoueurAlea() :
     """Stratégie aléatoire"""
     def __init__(self) :
-        self.nom = "Joueur Aléatoire"
+        self.nom = "IA Aléatoire"
 
     def joue(self, bataille) :
         x, y = randint(0, 9), randint(0, 9)
@@ -16,11 +18,15 @@ class JoueurAlea() :
 
             x, y = randint(0, 9), randint(0, 9)
             effect = bataille.joue((x, y))
+        return effect
+
+    def joueContre(self, position, bataille) :
+        return bataille.joue(position)
 
 class JoueurHeuristique() :
     """Stratégie heuristique"""
     def __init__(self) :
-        self.nom = "Joueur heuristique"
+        self.nom = "IA heuristique"
         self.prochains_coups = []
         self.coups_reussis = []
 
@@ -50,10 +56,14 @@ class JoueurHeuristique() :
                 self.prochains_coups.append((x, y-1))
         # print(self.coups_reussis)
         # print(self.prochains_coups)
+        return effect
+    def joueContre(self, position, bataille) :
+        return bataille.joue(position)
+
 class JoueurLigne() :
     """Stratégie en ligne"""
     def __init__(self) :
-        self.nom = "Joueur de ligne"
+        self.nom = "IA de ligne"
         self.prochains_coups = []
         self.coups_reussis = []
         self.coups_defaut =\
@@ -95,6 +105,10 @@ class JoueurLigne() :
                 self.prochains_coups.append((x+1, y))
                 self.prochains_coups.append((x-1, y))
                 self.prochains_coups.append((x, y-1))
+        return effect
+
+    def joueContre(self, position, bataille) :
+        return bataille.joue(position)
 
 class JoueurProba() :
     """
@@ -110,7 +124,7 @@ class JoueurProba() :
     """
     """Stratégie Probabiliste"""
     def __init__(self) :
-        self.nom = "Joueur Probabiliste"
+        self.nom = "IA Probabiliste"
         self.restants = [
         (5, nvl.reference[5][1]),
         (4, nvl.reference[4][1]),
@@ -192,3 +206,42 @@ class JoueurProba() :
             # self.coups_reussis.append((x, y))
         # while self.curr < len(self.restants) and (self.restants[self.curr][1] == 0) :
         #     self.curr += 1
+        return effect
+    def joueContre(self, position, bataille) :
+        return bataille.joue(position)
+
+class JoueurHumain() :
+    """A vous de jouer !"""
+    def __init__(self, adv) :
+        self.nom = "\"Encore un humain\""
+        self.adversaire = adv
+
+    # def __init__(self) :
+    #     self.nom = "\"Encore un humain\""
+    #     self.adversaire = None
+
+    def setAdversaire(self, adv) :
+        self.adversaire = adv
+
+    def joue(self, bataille) :
+        first_round = True
+        effect = -1
+        while (effect <= -1) :
+            if not first_round :
+                print("Saisie incorrecte")
+            else :
+                first_round = False
+            ans = input("Entrez une coordonnée du type A5\n>>> ")
+            ans = ans.upper()
+            if not (len(ans) >= 2 and ans[0] in string.ascii_uppercase and ans[1] in string.digits) or (len(ans) > 2 and ans[2] not in string.digits) :
+                effect = -1
+                continue
+
+            x, y =  ord(ans[0]) - ord('A'), int(ans[1:]) - 1
+            print(str((x,y)))
+            effect = self.adversaire.joueContre((x, y), bataille)
+        return effect
+    def getEnnemi(self) :
+        return self.adversaire
+    def joueContre(self, position, bataille) :
+        return bataille.joue(position)

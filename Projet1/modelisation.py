@@ -9,7 +9,7 @@ import os
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 
-def partie(joueur, afficher=False, laps=1, clear=True) :
+def partie(joueur, afficher=False, laps=1, clear=True, humain=False) :
     # tirage aléatoire d'une grille
     jeu = btl.Bataille()
     cpt = 0
@@ -17,7 +17,7 @@ def partie(joueur, afficher=False, laps=1, clear=True) :
     if (afficher) :
         if clear :
             cls()
-        jeu.affiche()
+        jeu.affiche(humain)
         time.sleep(laps)
     # Tant que le joueur n'a pas gagné :
     while (not jeu.victoire()) :
@@ -29,12 +29,102 @@ def partie(joueur, afficher=False, laps=1, clear=True) :
         if (afficher) :
             if clear :
                 cls()
-            jeu.affiche()
+            jeu.affiche(humain)
             time.sleep(laps)
 
     if afficher :
-        print("Victoire du joueur en " + str(cpt) + " tours")
+        print("-= Victoire du joueur en " + str(cpt) + " tours =-")
         print("Stratégie : " + joueur.__doc__)
+    return cpt
+
+def partieVs(j2) :
+    multi = isinstance(j2, jr.JoueurHumain)
+    effect = 0
+    j1 = jr.JoueurHumain(j2)
+    if multi :
+        j2.setAdversaire(j1)
+    laps = 1
+    jeu_j2 = btl.Bataille()
+    jeu_j1 = btl.Bataille()
+
+    time.sleep(laps)
+    cpt = 0
+    while (not jeu_j2.victoire() and not jeu_j1.victoire()) :
+        cpt += 1
+        if multi :
+            cls()
+            input("\n=-- Tour de J1 :"+j1.nom+" --=\n(appuyez sur entrer quand vous êtes prêt...)")
+        effect = 1
+        while effect > 0 and not (jeu_j2.victoire() or jeu_j1.victoire()) :
+            cls()
+            print("\n ~~~===> JOUEUR 1\n")
+
+            jeu_j2.affiche(humain=True, cacher=True)
+            print()
+            jeu_j1.affiche(humain=True)
+            nvl.afficherLegende()
+            effect = j1.joue(jeu_j2)
+            cls()
+            print("\n ~~~===> JOUEUR 1\n")
+
+            jeu_j2.affiche(humain=True, cacher=True)
+            print()
+            jeu_j1.affiche(humain=True)
+            if effect > 0 :
+                input("    Touché ! Vous pouvez rejouer !(appuyez sur entrer)\n")
+            else :
+                input("Manqué...(appuyez sur entrer)\n")
+        if multi :
+            cls()
+            input("\n=-- Tour de J2 :"+j2.nom+" --=\n(appuyez sur entrer quand vous êtes prêt...)")
+            effect = 1
+            while effect > 0 and not (jeu_j2.victoire() or jeu_j1.victoire()) :
+                cls()
+                print("\n ~~~===> JOUEUR 2\n")
+                jeu_j1.affiche(humain=True, cacher=True)
+                print()
+                jeu_j2.affiche(humain=True)
+                nvl.afficherLegende()
+                effect = j2.joue(jeu_j1)
+                cls()
+                print("\n ~~~===> JOUEUR 2\n")
+
+                jeu_j1.affiche(humain=True, cacher=True)
+                print()
+                jeu_j2.affiche(humain=True)
+                if effect > 0 :
+                    input("    Touché ! Vous pouvez rejouer ! (appuyez sur entrer)\n")
+                else :
+                    input("Manqué...(appuyez sur entrer)\n")
+
+        else :
+            input("Au tour de l'IA !\n(appuyez sur entrer quand vous êtes prêt...)")
+            effect = 1
+            while effect > 0 and not (jeu_j2.victoire() or jeu_j1.victoire()) :
+                effect = j2.joue(jeu_j1)
+                cls()
+                print("\n ~~~===> IA\n")
+                jeu_j2.affiche(humain=True, cacher=True)
+                print()
+                jeu_j1.affiche(humain=True)
+                if effect > 0 :
+                    input("    Touché ! L'IA rejoue ! (appuyez sur entrer)\n")
+                else :
+                    input("Manqué...(appuyez sur entrer)\n")
+        input("Nouvelle manche ...(appuyez sur entrer)\n")
+
+    cls()
+    input("\n\\\\\\\\ Fin de la partie ! ////\n\n(" + str(cpt) + " manches) (appuyez sur entrer)")
+    if jeu_j2.victoire() :
+        if multi :
+            print("Joueur J1 : "+j1.nom+" a gagné !")
+        else :
+            print("     !! Victoire contre l'IA : "+j2.nom+" !!")
+    else :
+        if multi :
+            print("Joueur J2 : "+j2.nom+" a gagné !")
+        else :
+            print("\n..:: Défaite ! ::..")
     return cpt
 
 def demo_jA() :
@@ -48,6 +138,72 @@ def demo_jL() :
 
 def demo_jP() :
     partie(jr.JoueurProba(), afficher=True, laps=0.25)
+
+def vs_jA() :
+    partieVs(jr.JoueurAlea())
+
+def vs_jH() :
+    partieVs(jr.JoueurHeuristique())
+
+def vs_jL() :
+    partieVs(jr.JoueurLigne())
+
+def vs_jP() :
+    partieVs(jr.JoueurProba())
+
+def vs_multi() :
+    partieVs(jr.JoueurHumain(None))
+
+
+def jouer() :
+    func = "Undefined"
+
+    switcher =  {
+        "1": vs_jA,
+        "2": vs_jH,
+        "3": vs_jL,
+        "4": vs_jP,
+        "5": vs_multi,
+        "0": exit
+    }
+    cls()
+    request = "Choisissez la difficulté :"
+
+    print("\n-= Jouer à la bataille navale =-\n")
+
+    while func == "Undefined" :
+        print("~" * len(request))
+        rep = input(
+        request + "\n\
+ 1 - Facile\n\
+ 2 - Moyenne\n\
+ 3 - Difficile\n\
+ 4 - Très difficile\n\n\
+ 5 - Multijoueur\n\n\
+ 0 - Quitter\n\
+ >>> "
+        )
+
+        func = switcher.get(rep, "Undefined")
+
+        if (func == "Undefined") :
+            print("\nErreur : entrée invalide.\n")
+            input("\n\nAppuyez sur entrer...")
+            cls()
+
+            rep = 0
+            func = "Undefined"
+
+        if int(rep) != 0 :
+            print()
+            # partie(func)
+            func()
+            input("\n\nAppuyez sur entrer...")
+            cls()
+
+            func = "Undefined"
+
+
 
 
 # def esperance(joueur) :
@@ -157,6 +313,7 @@ def main() :
         "2": demo_jH,
         "3": demo_jL,
         "4": demo_jP,
+        "5": jouer,
         "11": stats_jA,
         "21": stats_jH,
         "31": stats_jL,
@@ -176,6 +333,7 @@ def main() :
  2 - Démo JoueurHeuristique\n\
  3 - Démo Heuristique ligne\n\
  4 - Démo Probabiliste\n\
+ 5 - Jouer\n\
 11 - Stats sur Aléa\n\
 21 - Stats sur heuristique\n\
 31 - Stats sur heuristique ligne\n\
