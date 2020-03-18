@@ -3,41 +3,92 @@ from random import *
 import matplotlib.pyplot as plt
 import time
 
-"""
-Par convention, la position d'un bateau sera sa case la plus à gauche s'il est
-horizontal, et sa case la plus en haut dans le cas où il est vertical.
+# x_ascii : boolean, vrai si les caractères de l'ascii étendu sont autorisés
+x_ascii = True
+
+""" reference : dict(int : (str, int))
+Structure qui pour un type de case associe un nom et une valeur : sa taille si
+c'est un bateau.
 """
 reference = {
-    0 : ['vide', 0],
-    1 : ['porte-avions', 5],
-    2 : ['croiseur', 4],
-    3 : ['contre-torpilleurs', 3],
-    4 : ['sous-marin', 3],
-    5 : ['torpilleur', 2],
-    6 : ['tiré', -1],
-    7 : ['touché', -2]
+    0 : ('vide', 0),
+    1 : ('porte-avions', 5),
+    2 : ('croiseur', 4),
+    3 : ('contre-torpilleurs', 3),
+    4 : ('sous-marin', 3),
+    5 : ('torpilleur', 2),
+    6 : ('tiré', -1),
+    7 : ('touché', -2)
 }
 
-matricetest = [[0 for y in range(10)] for x in range(10)]
+
+""" symbols : dict(str, char)
+Associe un symbole à un type de case.
+"""
+symbols = {}
+if x_ascii :
+    symbols = {
+        "miss" : "X",
+        "hit" : "!",
+        "boat" : "■",
+        "corner_high_left" : "┌",
+        "corner_high_right" : "┐",
+        "corner_low_left" : "└",
+        "corner_low_right" : "┘",
+        "vertical_bar" : "│",
+        "horizontal_bar" : "─"
+    }
+else :
+    symbols = {
+        "miss" : "X",
+        "hit" : "!",
+        "boat" : "O",
+        "corner_high_left" : "+",
+        "corner_high_right" : "+",
+        "corner_low_left" : "+",
+        "corner_low_right" : "+",
+        "vertical_bar" : "|",
+        "horizontal_bar" : "~"
+    }
 
 
 def peut_placer(grille, bateau, position, direction) :
     """ list(list(int)) * int * (int, int) * int -> bool
     Rend vrai s’il est possible de placer le bateau sur
-    la grille (i.e. toutes les cases que doit occuper le
-    bateau sont libres) à la position et dans la direction
-    donnée (vous pouvez coder laposition comme un couple
-    d’entier et la direction par 2 entiers, par exemple 1
-    pour horizontal, 2 pour vertical).
+    la grille à la position et dans la direction
+    donnée.
+
+    Toutes les cases que doit occuper le bateau sont libres.
+
+    Par convention, la position d'un bateau sera sa case la plus à gauche s'il
+    est horizontal, et sa case la plus en haut dans le cas où il est vertical.
+
+     -- direction : 1 si horizontal, 2 si vertical
+
     """
+    # x : int
+    # y : int
     x, y = position
+
+    # h : int
     h = 0
+
+    # v : int
     v = 0
+
+    # Pour i dans [0, longueur du bateau[ :
     for i in range((reference[bateau])[1]) :
+        # Si la direction est horizontale :
         if direction == 1 :
+            # h est incrémenté, il sera ajouté à y plus tard de façon à se
+            # déplacer horizontalement
             h = i
+        # Si vertical :
         else :
+            # v est incrémenté, il sera ajouté à x plus tard de façon à se
+            # déplacer verticalement
             v = i
+        # Si l'une des cases est occupée ou est hors-limites :
         if x+v >= (len(grille)) or y+h >= (len(grille[0])) or grille[x+v][y+h] != 0 :
             return False
 
@@ -48,13 +99,25 @@ def place(grille, bateau, position, direction) :
     Rend la grille modifiée (s’il est possible de placer le bateau).
     """
     x, y = position
+
+    # h : int
     h = 0
+    # v : int
     v = 0
+    # Pour i dans [0, longueur du bateau[ :
     for i in range((reference[bateau])[1]) :
+        # Si la direction est horizontale :
         if direction == 1 :
+            # h est incrémenté, il sera ajouté à y plus tard de façon à se
+            # déplacer horizontalement
             h = i
+
+        # Si vertical :
         else :
+            # v est incrémenté, il sera ajouté à x plus tard de façon à se
+            # déplacer verticalement
             v = i
+
         grille[x+v][y+h] = bateau
 
     return grille
@@ -62,7 +125,7 @@ def place(grille, bateau, position, direction) :
 
 def place_alea(grille, bateau) :
     """ list(list(int)) * int  -> void
-    Place aléatoirement le bateau dansla grille : la fonction tire uniformément
+    Place aléatoirement le bateau dans la grille : la fonction tire uniformément
     une position et une direction aléatoires et tente de placer le bateau ; s’il
     n’est pas possible de placer le bateau, un nouveau tirage est effectué et ce
     jusqu’à ce que le positionnement soit admissible.
@@ -73,17 +136,14 @@ def place_alea(grille, bateau) :
     y = randint(0, 9)
     d = randint(1,2)
     while not (peut_placer(grille, bateau, (x,y), d)) :
-        # print(".", end="")
         x = randint(0, 9)
         y = randint(0, 9)
         d = randint(1,2)
-        # print("Placer " + str(bateau) + " en " + str((x, y)) + " avec d = " + str(d) + " dans \n" + affiche_mat(grille) + "\n ?")
-        # time.sleep(0.5)
     place(grille, bateau, (x,y), d)
 
 def affiche(grille) :
     """ list(list(int)) * int  -> void
-    Affiche la grille de jeu (utiliserimshowdu modulematplotlib.pyplot).
+    Affiche la grille de jeu (utiliser imshow du module matplotlib.pyplot).
     """
     plt.grid(True)
     plt.imshow(grille)
@@ -91,7 +151,7 @@ def affiche(grille) :
 
 def eq(grilleA,grilleB) :
     """ list(list(int)) * list(list(int)) -> bool
-    Tester l’égalité entre deux grilles
+    Teste l’égalité entre deux grilles
     """
     for i in range (len(grilleA)):
         for j in range (len(grilleA[0])):
@@ -99,24 +159,19 @@ def eq(grilleA,grilleB) :
                 return False
     return True
 
-def genere_grille():
-    """ void -> list(list(int))
-    Rend une grille avec les bateaux disposés de manière aléatoire
-    """
-    matrice = [[0 for y in range(10)] for x in range(10)]
-    for i in range (1, 6):
-        place_alea(matrice, i)
-    return matrice
+# def genere_grille():
+#     """ void -> list(list(int))
+#     Rend une grille avec les bateaux disposés de manière aléatoire
+#     """
+#     return genere_grille_list([i for i in range(1, 6)])
 
-def genere_grille_list(listNum):
+def genere_grille_list(listNum=[i for i in range(1,6)]):
     """ list(int) -> list(list(int))
     Rend une grille avec les bateaux disposés de manière aléatoire
     """
-    matrice = [[0 for y in range(10)] for x in range(10)]
+    # matrice : list(list(int))
+    matrice = genere_grille_vide()
     for i in listNum:
-        # if len(listNum) == 1 :
-            # print(i)
-            # time.sleep(0.001)
         place_alea(matrice, i)
     return matrice
 
@@ -139,26 +194,41 @@ def pos_un_bateau(grille, num) :
                 cpt=cpt+1
     return cpt
 
-def pos_des_bateauxrec(grille, liste, cpt) :
-    """ list(list(int)) * list(int) * int -> int
+def pos_des_bateauxrec(grille, liste) :
+    """ list(list(int)) * list(int) -> int
     Rend le nombre de possibilité de placer des bateaux dans une grille
+    récursivement
     """
-    # print("=- APPEL pos_des_bateauxrec -=\navec :\ngrille :\n"+affiche_mat(grille)+"\nliste :\n"+str(liste)+"\ncpt :\n"+str(cpt))
-    # time.sleep(0.005125)
+    cpt = 0
     if len(liste) == 0 :
         return 1
     else :
         for i in range(10):
             for j in range(10):
+                """
+                Si placer le premier bateau de la liste en (i,j) dans la grille
+                horizontalement est possible :
+                """
                 if (peut_placer(grille, liste[0], (i,j), 1)):
-                    cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 1), liste[1:], 0)
+                    """
+                    On ajoute à cpt le résultat de pos_des_bateauxres appliqué
+                    à la grille avec le premier bateau de la liste placé en
+                    (i,j) horizontalement
+                    """
+                    cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 1), liste[1:])
                 if (peut_placer(grille, liste[0], (i,j), 2)):
-                    cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 2), liste[1:], 0)
-        # print("return cpt =", cpt)
-        # time.sleep(1)
+                    """
+                    On ajoute à cpt le résultat de pos_des_bateauxres appliqué
+                    à la grille avec le premier bateau de la liste placé en
+                    (i,j) verticalement
+                    """
+                    cpt += pos_des_bateauxrec(place(copyMat(grille), liste[0], (i,j), 2), liste[1:])
         return cpt
 
 def copyMat(grille) :
+    """ list(list(int)) -> list(list(int))
+    Renvoie la copie de grille
+    """
     nouvGrille = genere_grille_vide()
     for i in range(len(grille)) :
         for j in range(len(grille[0])) :
@@ -169,9 +239,12 @@ def pos_des_bateaux(liste):
     """ list(int) -> int
     Rend le nombre de possibilité de placer des bateaux dans une grille vide
     """
-    return pos_des_bateauxrec(genere_grille_vide(), liste, 0)
+    return pos_des_bateauxrec(genere_grille_vide(), liste)
 
 def affiche_mat(grille) :
+    """ list(list(alpha)) -> str
+    Renvoie une chaine de caractère représentant la matrice passée en paramètre.
+    """
     string = ""
     for i in range(len(grille)) :
         for j in range(len(grille[0])) :
@@ -189,27 +262,22 @@ def grilleAleaEgale(grille, listNum) :
     que la grille générée soit égale à la grille passée en paramètre et qui
     renvoie le nombre de grilles générées.
     """
+    # grilleGeneree : list(list(int))
     grilleGeneree = genere_grille_list(listNum)
+
+    # cpt : int
     cpt = 1
-    # print(affiche_mat(grille))
-    # print()
-    # print(affiche_mat(grilleGeneree))
-    # print("=" * 60)
+
     while not eq(grille, grilleGeneree) :
         grilleGeneree = genere_grille_list(listNum)
         cpt += 1
-        # print("\n" * 2)
-        # print(affiche_mat(grille))
-        # print("- " * 30)
-        # print(affiche_mat(grilleGeneree))
-        # print("=" * 60)
-        # time.sleep(0.01)
 
     return cpt
 
 def test_grilleAleaEgale(sec, listNum) :
     """ Pour une durée donnée, itère autant que possible sur la fonction
     grilleAleaEgale pour donner au final une moyenne des résultats obtenus.
+    Fait des affichages informatifs en cours de route.
 
     Entrée :
      --     sec : durée en secondes (int)
@@ -220,11 +288,21 @@ def test_grilleAleaEgale(sec, listNum) :
     """
     print()
     print("Test grilleAleaEgale ("+str(sec)+"s, "+ str(listNum) +")")
+    # cpt : int, somme des résultats des appels successifs à grilleAleaEgale
     cpt = 0
+
+    # nb : int, nombre d'itérations
     nb = 1
+
+    # res : int, moyenne des résultats des appels successifs à grilleAleaEgale
     res = 0
+
+    # start_time : double?
     start_time = time.clock()
-    end_time = 0
+
+    # end_time : double?
+    end_time = 0.0
+
     while (True) :
         end_time = time.clock()
         if (end_time - start_time > sec) :
@@ -268,103 +346,160 @@ def approx_nbGrille2(listNum) :
     return res
 
 def maxLen(liste) :
+    """ Etant donnée une liste de listes, renvoie la longueur de la liste
+    contenue la plus longue.
+    """
     maxi = 0
     for x in liste :
         maxi = max(len(x), maxi)
     return maxi
 
-def affiche_tabl(liste, invert=False, replace=("0", "0")) :
-    """ Affiche d'une façon élégante une liste d'éléments sous la forme d'un
-    tableau
+def affiche_tabl(mat, invert=False, replace=("0", "0")) :
+    """ Affiche d'une façon élégante une matrice d'éléments sous la forme d'un
+    tableau.
+
+    Entrée :
+     --   mat : list(list(alpha))
+     --  invert : boolean
+            Si égal à True, les lignes deviennent colonnes et inversement.
+     -- replace : (str, str)
+            Pendant la construction du tableau, si un élément est égal à
+            replace[0] après avoir été converti en str, est remplacé par
+            replace[1].
+
+    Sortie :
+     -- : void
     """
-    listeCopy = liste.copy()
+    # matyCopy : list(list(alpha))
+    matCopy = mat.copy()
 
+    """ Processus d'inversion """
     if invert :
-        listeCopy2 = [[] for j in range(len(listeCopy[0]))]
-        for i in range(len(listeCopy)) :
-            for j in range(len(listeCopy[i])) :
-                listeCopy2[j].append(listeCopy[i][j])
-        listeCopy = listeCopy2
+        matCopy2 = [[] for j in range(len(matCopy[0]))]
+        for i in range(len(matCopy)) :
+            for j in range(len(matCopy[i])) :
+                matCopy2[j].append(matCopy[i][j])
+        matCopy = matCopy2
+    """                       """
 
-    sizes = [0] * len(listeCopy[0])
-    for i in range(len(listeCopy)) :
-        for j in range(len(listeCopy[i])) :
-            sizes[j] = max(sizes[j], len(str(listeCopy[i][j])))
+    # sizes : list(int), liste des tailles des colonnes
+    sizes = [0] * len(matCopy[0])
 
+    """ Mise à jour des tailles optimales des colonnes """
+    for i in range(len(matCopy)) :
+        for j in range(len(matCopy[i])) :
+            # sizes[j] prend pour valeur la longueur du plus long élément de la
+            # colonne j
+            sizes[j] = max(sizes[j], len(str(matCopy[i][j])))
+    """                                                """
 
-    listeCopy.insert(1, ["-" * (sizes[i]) for i in range(len(listeCopy[0]))])
-    form = ""
+    """ Insertion d'une ligne de séparation (pour les intitulés de colonnes) """
+    matCopy.insert(1, ["-" * (sizes[i]) for i in range(len(matCopy[0]))])
 
+    # tab : str, résultat
+    tab = symbols["corner_high_left"]
 
-    form += "┌"
-    for j in range(len(listeCopy[i])) :
-        form += "─" * (sizes[j] + 2)
-    form += "─" * (len(listeCopy[0]) - 1)
-    form += "┐\n"
+    for j in range(len(matCopy[i])) :
+        tab += symbols["horizontal_bar"] * (sizes[j] + 2)
 
-    for i in range(len(listeCopy)) :
-        form += "│"
-        for j in range(len(listeCopy[i])) :
-            form += " "
-            if str(listeCopy[i][j]) == replace[0] :
-                form += replace[1] + " " * ((sizes[j]) - len(str(listeCopy[i][j])))
+    tab += symbols["horizontal_bar"] * (len(matCopy[0]) - 1) +\
+            symbols["corner_high_right"]+"\n"
+
+    for i in range(len(matCopy)) :
+        tab += symbols["vertical_bar"]
+
+        for j in range(len(matCopy[i])) :
+            tab += " "
+
+            if str(matCopy[i][j]) == replace[0] :
+                tab += replace[1] + " " * ((sizes[j]) - len(str(matCopy[i][j])))
+
             else :
-                form += str(listeCopy[i][j]) + " " * ((sizes[j]) - len(str(listeCopy[i][j])))
-            form += " │"
-        form += "\n"
+                tab += str(matCopy[i][j]) + " " * ((sizes[j]) - len(str(matCopy[i][j])))
+            tab += " " + symbols["vertical_bar"]
+        tab += "\n"
+    tab += symbols["corner_low_left"]
 
-    form += "└"
-    for j in range(len(listeCopy[i])) :
-        form += "─" * (sizes[j] + 2)
-    form += "─" * (len(listeCopy[0]) - 1)
-    form += "┘"
-    print(form)
+    for j in range(len(matCopy[i])) :
+        tab += symbols["horizontal_bar"] * (sizes[j] + 2)
+
+    tab += symbols["horizontal_bar"] * (len(matCopy[0]) - 1) \+
+    symbols["corner_low_right"]
+
+    print(tab)
 
 def afficherLegende() :
-    print("    '!' : bateau touché\n    '■' : bateau\n    'X' : coup raté\n")
+    """ Affiche une légende des symboles utilisés."""
+    print("    '"+symbols["hit"]+"' : bateau touché\n    '"+symbols["boat"]+"' : bateau\n    '"+symbols["miss"]+"' : coup raté\n")
 
 def frame_bataille(mat, humain=False, cacher=False) :
-    # string = "\n" * 10
-    bats = set()
-    string = ""
-    if humain :
-        string += "   "
-        for i in range(10) :
-            string += " " + str(i +1) + " "
-        string += "\n  "
+    """ Retourne une chaine de caractère représentant un plateau de jeu de
+    bataille navale, encadré.
 
-    string += "┌" + "───" * len(mat[0]) + "┐\n"
+    Entrée :
+    --   mat : list(list(alpha))
+    --  humain : boolean
+            Si égal à True, ajoutera aux axes une graduation allant de A à J
+            pour la verticale et de 1 à 10 pour l'horizontale
+            (origine : haut gauche)
+    --  cacher : boolean
+            Si égal à True, cachera les cases bateaux, mais indiquera le nmbre
+            de bateaux restants
+    Sortie :
+    -- res : str
+    """
+    # bats : set(), bateaux restants
+    bats = set()
+
+    # res : str, resultat
+    res = ""
+    """ Ajout de la graduation horizonale """
+    if humain :
+        res += "   "
+        for i in range(10) :
+            res += " " + str(i +1) + " "
+        res += "\n  "
+
+    # res += "┌" + "───" * len(mat[0]) + "┐\n"
+    res += symbols["corner_high_left"] + symbols["horizontal_bar"] * 3 * len(mat[0]) + symbols["corner_high_right"] +"\n"
 
     for i in range(len(mat)) :
         if humain :
-            string += chr(ord('A') + i) + " │"
+            # res += chr(ord('A') + i) + " │"
+            res += chr(ord('A') + i) + " " + symbols["vertical_bar"]
 
         else :
-
-            string += "│"
+            # res += "│"
+            res += symbols["vertical_bar"]
         for j in range(len(mat[0])) :
             if mat[i][j] == 0 :
-                string += "   "
+                res += "   "
 
             elif mat[i][j] == -1 :
-                string += " X "
+                # res += " X "
+                res += " "+symbols["miss"]+" "
             elif mat[i][j] == -2 :
-                string += " ! "
+                # res += " ! "
+                res += " "+symbols["hit"]+" "
             elif cacher :
                 bats.add(mat[i][j])
-                string += "   "
+                res += "   "
             else :
-                string += " ■ "
-        string += "│\n"
+                # res += " ■ "
+                res += " "+symbols["boat"]+" "
+        # res += "│\n"
+        res += symbols["vertical_bar"]+"\n"
 
     if humain :
-        string += "  └" + "───" * len(mat[0]) + "┘\n"
+        # res += "  └" + "───" * len(mat[0]) + "┘\n"
+        res += "  "+symbols["corner_low_left"] + symbols["horizontal_bar"] * 3 * len(mat[0]) + symbols["corner_low_right"] +"\n"
         if cacher :
-            string += "Nombre de bateaux restants : " + str(len(bats))
+            res += "Nombre de bateaux restants : " + str(len(bats))
     else :
-        string += "└" + "───" * len(mat[0]) + "┘\n"
+        # res += "└" + "───" * len(mat[0]) + "┘\n"
+        res += symbols["corner_low_left"] + symbols["horizontal_bar"] * 3 * len(mat[0]) + symbols["corner_low_right"] +"\n"
 
-    return string
+    return res
 
 def test_tirage(nbCorrect, nbTotal) :
     vict = True
@@ -391,65 +526,65 @@ def test_tirage(nbCorrect, nbTotal) :
 
 def main() :
 
-    cpt = 0
-    for i in range(1000000) :
+    # cpt = 0
+    # for i in range(1000000) :
+    #
+    #     cpt+=(test_tirage(2, 5))
+    # print("moyenne ~~~ = ", str(cpt/1000000))
 
-        cpt+=(test_tirage(2, 5))
-    print("moyenne ~~~ = ", str(cpt/1000000))
+    print(peut_placer(genere_grille_vide(), 1, (0, 0), 1))
+    print(peut_placer(genere_grille_vide(), 1, (9, 9), 1))
 
-    print(peut_placer(matricetest, 1, (0, 0), 1))
-    print(peut_placer(matricetest, 1, (9, 9), 1))
-
-    print(peut_placer(matricetest, 1, (9, 0), 1))
-    print(peut_placer(matricetest, 2, (9, 0), 1))
-    print(peut_placer(matricetest, 1, (0, 9), 1))
-    print(peut_placer(matricetest, 2, (0, 9), 1))
+    print(peut_placer(genere_grille_vide(), 1, (9, 0), 1))
+    print(peut_placer(genere_grille_vide(), 2, (9, 0), 1))
+    print(peut_placer(genere_grille_vide(), 1, (0, 9), 1))
+    print(peut_placer(genere_grille_vide(), 2, (0, 9), 1))
     print(pos_un_bateau(genere_grille_vide(), 5))
 
     print()
     colNames = ["", "2", "3", "4", "5"]
     li1 = [
-    "pos_un_bateau",
-    pos_un_bateau(genere_grille_vide(), 1),
-    pos_un_bateau(genere_grille_vide(), 2),
-    pos_un_bateau(genere_grille_vide(), 3),
-    pos_un_bateau(genere_grille_vide(), 5)
+        "pos_un_bateau",
+        pos_un_bateau(genere_grille_vide(), 1),
+        pos_un_bateau(genere_grille_vide(), 2),
+        pos_un_bateau(genere_grille_vide(), 3),
+        pos_un_bateau(genere_grille_vide(), 5)
     ]
 
 
     affiche_tabl([  colNames,
-                    li1
-                    ])
+                    li1])
+
 
     print()
     colNames = ["Fonction\\Nombre de bateaux", "1", "2", "3"]
     li1 = [
-    "pos_des_bateaux",
-    pos_des_bateaux([5]),
-    pos_des_bateaux([5,4]),
-    "pos_des_bateaux([5,4,3])",
+        "pos_des_bateaux",
+        pos_des_bateaux([5]),
+        pos_des_bateaux([5,4]),
+        "pos_des_bateaux([5,4,3])",
     ]
 
 
     affiche_tabl([  colNames,
-                    li1
-                    ])
+                    li1])
+
 
 
     print()
     colNames = ["test_grilleAleaEgale pour 15s\\Nombre de bateaux", "1", "2", "3", "4", "5"]
     li1 = [
-    "(Nb d'itérations, nb de grilles)",
-    test_grilleAleaEgale(15, [5]),
-    test_grilleAleaEgale(15, [5, 4]),
-    test_grilleAleaEgale(15, [5, 4, 3]),
-    "test_grilleAleaEgale(60, [5, 4, 3, 2])",
-    "test_grilleAleaEgale(60, [5, 4, 3, 2, 1])"
+        "(Nb d'itérations, nb de grilles)",
+        test_grilleAleaEgale(15, [5]),
+        test_grilleAleaEgale(15, [5, 4]),
+        test_grilleAleaEgale(15, [5, 4, 3]),
+        "test_grilleAleaEgale(60, [5, 4, 3, 2])",
+        "test_grilleAleaEgale(60, [5, 4, 3, 2, 1])"
     ]
 
     affiche_tabl([  colNames,
-                    li1
-                    ])
+                    li1])
+
 
 
     print()
@@ -457,36 +592,36 @@ def main() :
 
     colNames = ["Valeurs à tester", "pos_des_bateaux", "approx_nbGrille1", "approx_nbGrille2"]
     li1 = [
-    "[5, 4]",
-    pos_des_bateaux([5,4]),
-    approx_nbGrille1([5,4]),
-    approx_nbGrille2([5,4])
+        "[5, 4]",
+        pos_des_bateaux([5,4]),
+        approx_nbGrille1([5,4]),
+        approx_nbGrille2([5,4])
     ]
     li2 = [
-    "[3, 4]",
-    pos_des_bateaux([3,4]),
-    approx_nbGrille1([3,4]),
-    approx_nbGrille2([3,4])
+        "[3, 4]",
+        pos_des_bateaux([3,4]),
+        approx_nbGrille1([3,4]),
+        approx_nbGrille2([3,4])
     ]
     li3 = [
-    "[2, 4]",
-    pos_des_bateaux([2,4]),
-    approx_nbGrille1([2,4]),
-    approx_nbGrille2([2,4])
+        "[2, 4]",
+        pos_des_bateaux([2,4]),
+        approx_nbGrille1([2,4]),
+        approx_nbGrille2([2,4])
     ]
     li4 = [
-    "[5, 3]",
-    pos_des_bateaux([5,3]),
-    approx_nbGrille1([5,3]),
-    approx_nbGrille2([5,3])
+        "[5, 3]",
+        pos_des_bateaux([5,3]),
+        approx_nbGrille1([5,3]),
+        approx_nbGrille2([5,3])
     ]
 
     affiche_tabl([  colNames,
                     li1,
                     li2,
                     li3,
-                    li4
-                    ])
+                    li4])
+
 
     # print(pos_des_bateaux([5, 4, 3])) # Trop long
 
