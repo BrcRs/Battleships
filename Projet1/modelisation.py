@@ -1,6 +1,7 @@
 import Joueur as jr
 import Bataille as btl
 import naval as nvl
+import display as dply
 
 import time
 
@@ -10,6 +11,24 @@ def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 
 def partie(joueur, afficher=False, laps=1, clear=True, humain=False) :
+    """Fait jouer une IA à la bataille navale
+
+    Entrée :
+    -- joueur : Joueur
+            Comme son nom ne l'indique pas, c'est l'IA.
+    -- afficher : boolean
+            Mettre à True fait afficher la grille en animation
+    -- laps : int
+            Laps de temps entre deux tours
+    -- clear : boolean
+            Fait appel à la commande clear du terminal entre deux affichages si
+            mis à True.
+    -- humain : boolean
+            Affichera une graduation autour de la grille de jeu si égal à True.
+    Sortie :
+    -- : int
+            Nombre de tours avant victoire.
+    """
     # tirage aléatoire d'une grille
     jeu = btl.Bataille()
     cpt = 0
@@ -38,6 +57,9 @@ def partie(joueur, afficher=False, laps=1, clear=True, humain=False) :
     return cpt
 
 def partieVs(j2) :
+    """ Fait jouer un joueur humain contre un autre joueur ou une IA
+    (dépend de la nature de j2)
+    """
     multi = isinstance(j2, jr.JoueurHumain)
     effect = 0
     j1 = jr.JoueurHumain(j2)
@@ -62,7 +84,7 @@ def partieVs(j2) :
             jeu_j2.affiche(humain=True, cacher=True)
             print()
             jeu_j1.affiche(humain=True)
-            nvl.afficherLegende()
+            dply.afficherLegende()
             effect = j1.joue(jeu_j2)
             cls()
             print("\n ~~~===> JOUEUR 1\n")
@@ -84,7 +106,7 @@ def partieVs(j2) :
                 jeu_j1.affiche(humain=True, cacher=True)
                 print()
                 jeu_j2.affiche(humain=True)
-                nvl.afficherLegende()
+                dply.afficherLegende()
                 effect = j2.joue(jeu_j1)
                 cls()
                 print("\n ~~~===> JOUEUR 2\n")
@@ -151,8 +173,12 @@ def vs_jL() :
 def vs_jP() :
     partieVs(jr.JoueurProba())
 
+def vs_j17() :
+    partieVs(jr.Joueur17())
+
 def vs_multi() :
     partieVs(jr.JoueurHumain(None))
+
 
 
 def jouer() :
@@ -164,6 +190,7 @@ def jouer() :
         "3": vs_jL,
         "4": vs_jP,
         "5": vs_multi,
+        "17": vs_j17,
         "0": exit
     }
     cls()
@@ -180,7 +207,7 @@ def jouer() :
  3 - Difficile\n\
  4 - Très difficile\n\n\
  5 - Multijoueur\n\n\
- 0 - Quitter\n\
+ 0 - Retour\n\
  >>> "
         )
 
@@ -215,6 +242,7 @@ def jouer() :
 #     return cpt, coups
 
 def convertTime(sec) :
+    """ Rend un nombre de seconde en format "xm ys" """
     string = ""
     if sec >= 60 :
         string += str(sec//60) + "m "
@@ -222,13 +250,22 @@ def convertTime(sec) :
     return string
 
 def distrib(joueur) :
+    """ Fait jouer une IA 'joueur' 1000 fois, stocke dans un tableau le nombre
+    de victoires pour un nombre de tours.
 
+    la fonction peut prendre du temps, donc une barre de progression a été
+    ajoutée (1).
+    """
+    # Le tableau s'arrête à 100 tours puisqu'il est impossible de jouer plus de
+    # 100 tours
+    # Le tableau commence à 17 puisqu'il est impossible de gagner en moins de
+    # 17 tours (17 cases bateaux oblige)
     coups = [0 for i in range(17, 101)]
     string = "\n["
     for i in range(1000) :
         if i%100 == 0 :
             cls()
-            print(string + "#" * int(i/100) + " " * int(10 - i/100) + "] ")
+            print(string + "#" * int(i/100) + " " * int(10 - i/100) + "] ") # (1)
             if i >= 1 :
                 end_time = time.clock()
                 print("Temps restant estimé : " +\
@@ -244,6 +281,17 @@ def distrib(joueur) :
     return i+1, coups
 
 def histo(liste, xBounds, yBounds) :
+    """ Retourne une chaine de caractère représentant un histogramme d'une
+    liste de valeurs.
+    /!/ L'histogramme peut prendre beaucoup de place à l'écran
+    Entrée :
+    -- liste : list(alpha)
+            Liste de valeurs
+    -- xBounds : (int, int)
+            Bornes inférieures et supérieures de l'axe x
+    -- yBounds : (int, int)
+            Bornes inférieures et supérieures de l'axe y
+    """
     xmin, xmax = xBounds
     ymin, ymax = yBounds
 
@@ -266,6 +314,8 @@ def histo(liste, xBounds, yBounds) :
     return string
 
 def stats_j(joueur) :
+    """ Calcule et affiche la distribution et l'espérance du nombre de victoire
+    en fonction du nombre de coups d'un joueur (IA). """
     cpt, coups = distrib(joueur)
     esp = 0
     for i in range(17, 101) :
@@ -277,7 +327,7 @@ def stats_j(joueur) :
     upperbound = max(coups)
 
     # print(histo(coups, (17, 100), (0, upperbound)))
-    nvl.affiche_tabl(
+    dply.affiche_tabl(
                     [
                     ["Tour"] + [i for i in range(17, 101)],
                     ["Nb de victoires"] + coups
@@ -302,42 +352,109 @@ def stats_jL() :
 def stats_jP() :
     return stats_j(jr.JoueurProba())
 
+def info_jA():
+    cls()
+    title = "\nINFO IA ALEATOIRE"
+    print(title + "\n"+"-" * len(title))
+    print(jr.JoueurAlea().__doc__)
+def info_jH():
+    cls()
+    title = "\nINFO IA HEURISTIQUE"
+    print(title + "\n"+"-" * len(title))
+    print(jr.JoueurHeuristique().__doc__)
+def info_jL():
+    cls()
+    title = "\nINFO IA LIGNE"
+    print(title + "\n"+"-" * len(title))
+    print(jr.JoueurLigne().__doc__)
+def info_jP():
+    cls()
+    title = "\nINFO IA PROBABILISTE SIMPLIFIE"
+    print(title + "\n"+"-" * len(title))
+    print(jr.JoueurProba().__doc__)
+def info_main():
+    cls()
+    title = "\nA propos de cette fonction ..."
+    doc = """\nCe menu vous permet de tester toutes les fonctions implémentées via une interface
+console :
+    - Démonstration de l'IA aléatoire
+    - //            // //   heuristique
+    - //            // //   heuristique en ligne
+    - //            // //   probabiliste simplifiée
+    - Jouer au jeu, seul ou à plusieurs
+    - Donner des statistiques sur l'IA aléatoire
+    - //     //  //           //  //   heuristique
+    - //     //  //           //  //   heuristique en ligne
+    - //     //  //           //  //   probabiliste simplifiée
+        """
+    print(title + "\n"+"-" * len(title))
+
+    print(doc)
 
 
 def main() :
+    """ Ce menu vous permet de tester toutes les fonctions implémentées via une interface
+    console :
+    - Démonstration de l'IA aléatoire
+    - //            // //   heuristique
+    - //            // //   heuristique en ligne
+    - //            // //   probabiliste simplifiée
+    - Jouer au jeu, seul ou à plusieurs
+    - Donner des statistiques sur l'IA aléatoire
+    - //     //  //           //  //   heuristique
+    - //     //  //           //  //   heuristique en ligne
+    - //     //  //           //  //   probabiliste simplifiée
+    """
 
     func = "Undefined"
 
     switcher =  {
-        "1": demo_jA,
-        "2": demo_jH,
-        "3": demo_jL,
-        "4": demo_jP,
+        "11": demo_jA,
+        "21": demo_jH,
+        "31": demo_jL,
+        "41": demo_jP,
         "5": jouer,
-        "11": stats_jA,
-        "21": stats_jH,
-        "31": stats_jL,
-        "41": stats_jP,
+        "12": stats_jA,
+        "22": stats_jH,
+        "32": stats_jL,
+        "42": stats_jP,
+        "13": info_jA,
+        "23": info_jH,
+        "33": info_jL,
+        "43": info_jP,
+        "6": info_main,
         "0": exit
     }
     cls()
+    title = "\n\tMENU PRINCIPAL"
     request = "Choisissez une opération (tapez le nombre correspondant) :"
 
-    print("\n-= Modélisation probabiliste du jeu de la bataille navale =-\n")
-
+    input("\n-= Modélisation probabiliste du jeu de la bataille navale =-\n(Appuyez sur entrée)")
+    cls()
     while func == "Undefined" :
+        print(title)
         print("~" * len(request))
         rep = input(
         request + "\n\
- 1 - Démo JoueurAléatoire\n\
- 2 - Démo JoueurHeuristique\n\
- 3 - Démo Heuristique ligne\n\
- 4 - Démo Probabiliste\n\
+ IA Aléatoire\n\
+    11 - Démonstration\n\
+    12 - Statistiques\n\
+    13 - Info?\n\
+ IA Heuristique\n\
+    21 - Démonstration\n\
+    22 - Statistiques\n\
+    23 - Info?\n\
+ IA Heuristique ligne\n\
+    31 - Démonstration\n\
+    32 - Statistiques\n\
+    33 - Info?\n\
+ IA Probabiliste simplifiée\n\
+    41 - Démonstration\n\
+    42 - Statistiques\n\
+    43 - Info?\n\
  5 - Jouer\n\
-11 - Stats sur Aléa\n\
-21 - Stats sur heuristique\n\
-31 - Stats sur heuristique ligne\n\
-41 - Stats sur probabiliste\n\
+ 6 - Info\n\
+\n\
  0 - Quitter\n\
  >>> "
         )
