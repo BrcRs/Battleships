@@ -15,7 +15,7 @@ coups ?
 
 C'est ce que nous allons essayer de déterminer à travers ce projet. Le rapport final peut être trouvé dans
 
-  /Projet1/Rapport5.pdf
+    /Projet1/Rapport5.pdf
 
 ## De quoi s'agit-il
 
@@ -29,7 +29,7 @@ L'IA adopter l'une des stratégies suivantes :
 
 Lancez :
 
-  python3 modelisation.py
+    python3 modelisation.py
 
 pour pouvoir utiliser notre application de bataille navale. Une interface terminal permet de choisir les options de jeu, tout est expliqué.
 
