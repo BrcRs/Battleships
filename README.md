@@ -13,13 +13,24 @@ grille, sans que l'on connaisse la position des bateaux. Comment la probabilisti
 peut nous aider à gagner au jeu de la bataille navale en un nombre minimum de
 coups ?
 
+C'est ce que nous allons essayer de déterminer à travers ce projet. Le rapport final peut être trouvé dans
+
+  /Projet1/Rapport5.pdf
+
+## De quoi s'agit-il
+
+Notre application python permet de jouer au jeu de la bataille navale en joueur contre joueur, mais aussi en joueur contre IA, dont la difficulté peut être ajustée.
+L'IA adopter l'une des stratégies suivantes :
+- jouer aléatoirement
+- jouer avec l'intuition de toucher autour des cases victorieuses (heuristique)
+- jouer en tenant compte des probabilités
+
 ## Comment l'utiliser
 
 Lancez :
 
   python3 modelisation.py
 
-pour pouvoir utiliser notre application de bataille navale.
+pour pouvoir utiliser notre application de bataille navale. Une interface terminal permet de choisir les options de jeu, tout est expliqué.
 
-Modifiez 'config.py' pour personnaliser votre expérience (pour désactiver les 
-caractères spéciaux notamment).
+> Note : Modifiez 'config.py' pour personnaliser votre expérience (pour désactiver les caractères spéciaux notamment).
